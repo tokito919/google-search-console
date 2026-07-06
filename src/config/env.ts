@@ -25,6 +25,7 @@ const AppConfigSchema = z.object({
   transport: z.enum(["stdio", "http"]),
   port: z.number().int().positive(),
   logLevel: z.enum(["debug", "info", "warn", "error"]),
+  authToken: z.string().optional(),
 });
 
 // ---------------------------------------------------------------------------
@@ -80,6 +81,7 @@ function loadConfig(): AppConfig {
     transport: (env.MCP_TRANSPORT ?? "stdio") as "stdio" | "http",
     port: parseInt(env.PORT ?? "3000", 10),
     logLevel: (env.LOG_LEVEL ?? "info") as "debug" | "info" | "warn" | "error",
+    authToken: env.MCP_AUTH_TOKEN || undefined,
   };
 
   const result = AppConfigSchema.safeParse(rawConfig);
