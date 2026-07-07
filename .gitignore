@@ -6,3 +6,4 @@ dist/
 !tsconfig.json
 *.log
 .DS_Store
+setup-railway-env.mjs
