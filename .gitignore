@@ -4,6 +4,7 @@ dist/
 *.json
 !package.json
 !tsconfig.json
+!package-lock.json
 *.log
 .DS_Store
 setup-railway-env.mjs

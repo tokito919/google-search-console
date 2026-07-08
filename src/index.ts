@@ -48,11 +48,11 @@ async function main() {
 
     await server.connect(transport);
 
-    httpServer.listen(config.port, () => {
+    httpServer.listen(config.port, "0.0.0.0", () => {
       console.error(
-        `[SEO MCP Server] HTTP transport running on port ${config.port}\n` +
-          `  MCP endpoint : http://localhost:${config.port}/mcp\n` +
-          `  Health check : http://localhost:${config.port}/health\n` +
+        `[SEO MCP Server] HTTP transport running on 0.0.0.0:${config.port}\n` +
+          `  MCP endpoint : http://0.0.0.0:${config.port}/mcp\n` +
+          `  Health check : http://0.0.0.0:${config.port}/health\n` +
           `  GSC sites    : ${config.gsc.sites.length}\n` +
           `  WP sites     : ${config.wpSites.length}`
       );
