@@ -14,14 +14,11 @@ async function main() {
     const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined });
 
     const httpServer = http.createServer(async (req, res) => {
-      // Health check endpoint for Railway
+      // Health check — must respond immediately, before MCP is ready
       if (req.method === "GET" && req.url === "/health") {
         const body = JSON.stringify({
           status: "ok",
-          sites: {
-            gsc: config.gsc.sites.length,
-            wordpress: config.wpSites.length,
-          },
+          sites: { gsc: config.gsc.sites.length, wordpress: config.wpSites.length },
         });
         res.writeHead(200, { "Content-Type": "application/json" });
         res.end(body);
@@ -46,17 +43,23 @@ async function main() {
       res.end("Not found");
     });
 
-    await server.connect(transport);
-
-    httpServer.listen(config.port, "0.0.0.0", () => {
-      console.error(
-        `[SEO MCP Server] HTTP transport running on 0.0.0.0:${config.port}\n` +
-          `  MCP endpoint : http://0.0.0.0:${config.port}/mcp\n` +
-          `  Health check : http://0.0.0.0:${config.port}/health\n` +
-          `  GSC sites    : ${config.gsc.sites.length}\n` +
-          `  WP sites     : ${config.wpSites.length}`
-      );
+    // Listen first so the health check responds immediately
+    await new Promise<void>((resolve) => {
+      httpServer.listen(config.port, "0.0.0.0", () => {
+        console.error(
+          `[SEO MCP Server] HTTP transport running on 0.0.0.0:${config.port}\n` +
+            `  MCP endpoint : http://0.0.0.0:${config.port}/mcp\n` +
+            `  Health check : http://0.0.0.0:${config.port}/health\n` +
+            `  GSC sites    : ${config.gsc.sites.length}\n` +
+            `  WP sites     : ${config.wpSites.length}`
+        );
+        resolve();
+      });
     });
+
+    // Connect MCP server after port is bound
+    await server.connect(transport);
+    console.error("[SEO MCP Server] MCP transport connected and ready.");
   } else {
     // -------------------------------------------------------------------
     // Stdio transport — used for Claude Desktop
